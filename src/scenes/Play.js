@@ -19,12 +19,18 @@ class Play extends Phaser.Scene {
 
         this.p1Rocket = new Rocket(this, game.config.width/2, game.config.height 
             - borderUISize - borderPadding, "rocket").setOrigin(.5,0);
+        
+        this.p2Rocket = new Rocket(this, game.config.width/2, game.config.height 
+                - borderUISize - borderPadding, "rocket").setOrigin(.5,0);
+        this.p2Rocket.alpha = 0;
+
 
         // add spaceships (x3)
         this.ship1 = new Ship(this, game.config.width + borderUISize*6, borderUISize*4, "spaceship", 0, 30).setOrigin(0, 0);
         this.ship2 = new Ship(this, game.config.width + borderUISize*3, borderUISize*5 + borderPadding*2, "spaceship", 0, 20).setOrigin(0,0);
         this.ship3 = new Ship(this, game.config.width, borderUISize*6 + borderPadding*4, "spaceship", 0, 10).setOrigin(0,0);
         
+
 
         // green UI background
         this.add.rectangle(0, borderUISize + borderPadding, game.config.width, borderUISize * 2, 
@@ -50,6 +56,7 @@ class Play extends Phaser.Scene {
         
         // initialize score
         this.p1Score = 0;
+        this.p2Score = 0;
         
         // display score
         let scoreConfig = {
@@ -67,27 +74,38 @@ class Play extends Phaser.Scene {
         this.scoreLeft = this.add.text(borderUISize + borderPadding, borderUISize + 
             borderPadding*2, this.p1Score, scoreConfig);
 
+        this.scoreRight = this.add.text(game.config.width - 140, borderUISize + 
+                borderPadding*2, this.p2Score, scoreConfig);
+        
 
         // GAME OVER flag
-        this.gameOver = false;    
+        this.gameOver = false;  
+        this.gameOver2 = false;  
+
+        this.extraTime = 0;
 
         // 60-second play clock
         scoreConfig.fixedWidth = 0;
         this.clock = this.time.delayedCall(game.settings.gameTimer, () => {
-        this.add.text(game.config.width/2, game.config.height/2, 'GAME OVER', 
+            this.addTime(this.extraTime);
+            /*this.add.text(game.config.width/2, game.config.height/2, 'GAME OVER', 
             scoreConfig).setOrigin(0.5);
         this.add.text(game.config.width/2, game.config.height/2 + 64, 'Press (R) to Restart or <- for Menu', 
             scoreConfig).setOrigin(0.5);
             this.gameOver = true;
+            */
         }, null, this);
+        
+
+        
 
     }
  
     update() {
         
-
+        
         // check key input for restart
-        if (this.gameOver && Phaser.Input.Keyboard.JustDown(keyR)) {
+        if (this.gameOver2 && Phaser.Input.Keyboard.JustDown(keyR)) {
             this.scene.restart();
         }
         
@@ -101,22 +119,93 @@ class Play extends Phaser.Scene {
         }
         
 
-        if (this.gameOver && Phaser.Input.Keyboard.JustDown(keyLEFT)) {
+        if (this.gameOver2 && Phaser.Input.Keyboard.JustDown(keyLEFT)) {
             this.scene.start("menuScene");
         }
 
-        // check collisions
-        if(this.checkCollision(this.p1Rocket, this.ship3)) {
-            this.p1Rocket.reset();
-            this.shipExplode(this.ship3);
+        if(!this.gameOver){
+            // check collisions
+            if(this.checkCollision(this.p1Rocket, this.ship3)) {
+                this.p1Rocket.reset();
+                this.shipExplode(this.ship3);
+                
+                this.p1Rocket.consecutiveHits += 1;
+                if(this.p1Rocket.consecutiveHits > 3){
+                    this.extraTime += 3000;
+                }
+                else{
+                    this.extraTime += this.p1Rocket.consecutiveHits*1000;
+                }
+
+            }
+            if (this.checkCollision(this.p1Rocket, this.ship2)) {
+                this.p1Rocket.reset();
+                this.shipExplode(this.ship2);
+                
+                this.p1Rocket.consecutiveHits += 1;
+                if(this.p1Rocket.consecutiveHits > 3){
+                    this.extraTime += 3000;
+                }
+                else{
+                    this.extraTime += this.p1Rocket.consecutiveHits*1000;
+                }
+
+            }
+            if (this.checkCollision(this.p1Rocket, this.ship1)) {
+                this.p1Rocket.reset();
+                this.shipExplode(this.ship1);
+                
+                this.p1Rocket.consecutiveHits += 1;
+                if(this.p1Rocket.consecutiveHits > 3){
+                    this.extraTime += 3000;
+                }
+                else{
+                    this.extraTime += this.p1Rocket.consecutiveHits*1000;
+                }
+            }
+
         }
-        if (this.checkCollision(this.p1Rocket, this.ship2)) {
-            this.p1Rocket.reset();
-            this.shipExplode(this.ship2);
-        }
-        if (this.checkCollision(this.p1Rocket, this.ship1)) {
-            this.p1Rocket.reset();
-            this.shipExplode(this.ship1);
+        else if(this.gameOver && !this.gameOver2){
+            // check collisions
+            if(this.checkCollision(this.p2Rocket, this.ship3)) {
+                this.p2Rocket.reset();
+                this.shipExplode(this.ship3);
+                
+                this.p2Rocket.consecutiveHits += 1;
+                if(this.p2Rocket.consecutiveHits > 3){
+                    this.extraTime += 3000;
+                }
+                else{
+                    this.extraTime += this.p2Rocket.consecutiveHits*1000;
+                }
+
+            }
+            if (this.checkCollision(this.p2Rocket, this.ship2)) {
+                this.p2Rocket.reset();
+                this.shipExplode(this.ship2);
+                
+                this.p2Rocket.consecutiveHits += 1;
+                if(this.p2Rocket.consecutiveHits > 3){
+                    this.extraTime += 3000;
+                }
+                else{
+                    this.extraTime += this.p2Rocket.consecutiveHits*1000;
+                }
+
+            }
+            if (this.checkCollision(this.p2Rocket, this.ship1)) {
+                this.p2Rocket.reset();
+                this.shipExplode(this.ship1);
+                
+                this.p2Rocket.consecutiveHits += 1;
+                if(this.p2Rocket.consecutiveHits > 3){
+                    this.extraTime += 3000;
+                }
+                else{
+                    this.extraTime += this.p2Rocket.consecutiveHits*1000;
+                }
+            }
+
         }
 
         /*if (!this.gameOver) {               
@@ -134,6 +223,7 @@ class Play extends Phaser.Scene {
             rocket.x + rocket.width > ship.x && 
             rocket.y < ship.y + ship.height &&
             rocket.height + rocket.y > ship. y) {
+            
             return true;
         } 
         else {
@@ -159,5 +249,43 @@ class Play extends Phaser.Scene {
         this.sound.play('sfx_explosion');
       }
 
+    addTime(time){
+        
+        if(this.gameOver == false){
+            if(time == 0){
+                this.add.text(game.config.width/2, game.config.height/2, 'PLAYER 1 TURN OVER', 
+                this.scoreConfig).setOrigin(0.5);
+            this.add.text(game.config.width/2, game.config.height/2 + 64, 'Press (R) to Restart or <- for Menu', 
+                this.scoreConfig).setOrigin(0.5);
+                this.gameOver = true;
+            }    
+            else{
+                this.clock = this.time.delayedCall(time, () => {
+                    this.addTime(this.extraTime);   
+                }, null, this); 
+                this.extraTime = 0;
+            }
+            this.p1Rocket.alpha = 0;
+            this.p2Rocket.alpha = 1;
+            this.gameOver = true;
+        }
+        
+        else{
+            if(time == 0){
+                this.add.text(game.config.width/2, game.config.height/2, 'GAME OVER', 
+                this.scoreConfig).setOrigin(0.5);
+            this.add.text(game.config.width/2, game.config.height/2 + 64, 'Press (R) to Restart or <- for Menu', 
+                this.scoreConfig).setOrigin(0.5);
+                this.gameOver = true;
+            }    
+            else{
+                this.clock = this.time.delayedCall(time, () => {
+                    this.addTime(this.extraTime);   
+                }, null, this); 
+                this.extraTime = 0;
+            }
+            this.gameOver2 = true;
+        }
+    }
 
 }
