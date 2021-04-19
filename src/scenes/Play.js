@@ -117,6 +117,7 @@ class Play extends Phaser.Scene {
             this.ship3.update();
 
         }
+
         
 
         if (this.gameOver2 && Phaser.Input.Keyboard.JustDown(keyLEFT)) {
@@ -124,6 +125,8 @@ class Play extends Phaser.Scene {
         }
 
         if(!this.gameOver){
+            
+            
             // check collisions
             if(this.checkCollision(this.p1Rocket, this.ship3)) {
                 this.p1Rocket.reset();
@@ -166,6 +169,12 @@ class Play extends Phaser.Scene {
 
         }
         else if(this.gameOver && !this.gameOver2){
+
+                this.p2Rocket.update();
+                this.ship1.update();               // update spaceships (x3)
+                this.ship2.update();
+                this.ship3.update();
+    
             // check collisions
             if(this.checkCollision(this.p2Rocket, this.ship3)) {
                 this.p2Rocket.reset();
@@ -244,20 +253,32 @@ class Play extends Phaser.Scene {
         });   
         
         // score add and repaint
-        this.p1Score += ship.points;
-        this.scoreLeft.text = this.p1Score; 
+        if(!this.gameOver){
+            this.p1Score += ship.points;
+            this.scoreLeft.text = this.p1Score; 
+        }
+        else{
+            this.p2Score += ship.points;
+            this.scoreRight.text = this.p2Score;
+        }
         this.sound.play('sfx_explosion');
       }
 
     addTime(time){
         
-        if(this.gameOver == false){
+        if(!this.gameOver){
             if(time == 0){
                 this.add.text(game.config.width/2, game.config.height/2, 'PLAYER 1 TURN OVER', 
                 this.scoreConfig).setOrigin(0.5);
-            this.add.text(game.config.width/2, game.config.height/2 + 64, 'Press (R) to Restart or <- for Menu', 
-                this.scoreConfig).setOrigin(0.5);
+                
                 this.gameOver = true;
+                this.p1Rocket.alpha = 0;
+                this.p2Rocket.alpha = 1;
+                this.extraTime = 0;
+
+                this.clock = this.time.delayedCall(game.settings.gameTimer, () => {
+                    this.addTime(this.extraTime);   
+                }, null, this); 
             }    
             else{
                 this.clock = this.time.delayedCall(time, () => {
@@ -265,9 +286,7 @@ class Play extends Phaser.Scene {
                 }, null, this); 
                 this.extraTime = 0;
             }
-            this.p1Rocket.alpha = 0;
-            this.p2Rocket.alpha = 1;
-            this.gameOver = true;
+            
         }
         
         else{
@@ -276,7 +295,8 @@ class Play extends Phaser.Scene {
                 this.scoreConfig).setOrigin(0.5);
             this.add.text(game.config.width/2, game.config.height/2 + 64, 'Press (R) to Restart or <- for Menu', 
                 this.scoreConfig).setOrigin(0.5);
-                this.gameOver = true;
+                
+                this.gameOver2 = true;
             }    
             else{
                 this.clock = this.time.delayedCall(time, () => {
@@ -284,7 +304,7 @@ class Play extends Phaser.Scene {
                 }, null, this); 
                 this.extraTime = 0;
             }
-            this.gameOver2 = true;
+            
         }
     }
 
