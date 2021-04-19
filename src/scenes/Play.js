@@ -268,9 +268,21 @@ class Play extends Phaser.Scene {
         
         if(!this.gameOver){
             if(time == 0){
-                this.add.text(game.config.width/2, game.config.height/2, 'PLAYER 1 TURN OVER', 
-                this.scoreConfig).setOrigin(0.5);
-                
+               turnOver = new Text(game.config.width/2, game.config.height/2, 'PLAYER 1 TURN OVER LOL', 
+                this.scoreConfig).setOrigin(.5);
+             //   playerTwo = this.make.text(game.config.width/2, game.config.height/2 + 164, 'PLAYER 2 GET READY', 
+             //   this.scoreConfig).setOrigin(.5);
+
+
+            //    this.add.text(game.config.width/2, game.config.height/2, 'PLAYER 1 TURN OVER', 
+            //    this.scoreConfig).setOrigin(0.5);
+            
+               this.clock = this.time.delayedCall(3000, () => {
+                turnOver.destroy();
+                //playerTwo.alpha = 0;
+               }, null, this);  
+            
+
                 this.gameOver = true;
                 this.p1Rocket.alpha = 0;
                 this.p2Rocket.alpha = 1;
