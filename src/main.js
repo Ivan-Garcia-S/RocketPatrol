@@ -7,7 +7,8 @@ let config = {
   }
   
 let game = new Phaser.Game(config);
-let keyF, keyR, keyLEFT, keyRIGHT;
+let keyF, keyR, keyLEFT, keyRIGHT, mouse;
+
 
 
 
@@ -15,3 +16,4 @@ let keyF, keyR, keyLEFT, keyRIGHT;
 let borderUISize = game.config.height / 15;
 let borderPadding = borderUISize / 3;
 
+let highScore = 0;

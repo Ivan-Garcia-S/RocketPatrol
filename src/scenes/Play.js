@@ -7,7 +7,7 @@ class Play extends Phaser.Scene {
         this.load.image("starfield", "./assets/starfield.png");
         this.load.image("rocket", "./assets/rocket.png");
         this.load.image("spaceship", "./assets/spaceship.png");   
-        
+        this.load.image('spark', './assets/blue_particle.png');
         // load spritesheet
         this.load.spritesheet('explosion', './assets/explosion.png', {frameWidth: 64, frameHeight: 32, 
             startFrame: 0, endFrame: 9});
@@ -24,13 +24,19 @@ class Play extends Phaser.Scene {
                 - borderUISize - borderPadding, "rocket").setOrigin(.5,0);
         this.p2Rocket.alpha = 0;
 
+        this.particles = this.add.particles('spark');
+        
+        this.timer = game.settings.gameTimer;
+        
+
+        this.explosionAudios = ['sfx_explosion1', 'sfx_explosion2', 'sfx_explosion3', 'sfx_explosion4'];
 
         // add spaceships (x3)
         this.ship1 = new Ship(this, game.config.width + borderUISize*6, borderUISize*4, "spaceship", 0, 30).setOrigin(0, 0);
         this.ship2 = new Ship(this, game.config.width + borderUISize*3, borderUISize*5 + borderPadding*2, "spaceship", 0, 20).setOrigin(0,0);
         this.ship3 = new Ship(this, game.config.width, borderUISize*6 + borderPadding*4, "spaceship", 0, 10).setOrigin(0,0);
         
-
+        this.pauseGame = false;
 
         // green UI background
         this.add.rectangle(0, borderUISize + borderPadding, game.config.width, borderUISize * 2, 
@@ -49,6 +55,7 @@ class Play extends Phaser.Scene {
         keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
         keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
         keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
+        mouse = this.input.activePointer;
 
         // animation config
         this.anims.create({ key: 'explode', frames: this.anims.generateFrameNumbers('explosion', 
@@ -71,32 +78,34 @@ class Play extends Phaser.Scene {
         },
         fixedWidth: 100
         }
+        
+        
+        //score and highscore displays
         this.scoreLeft = this.add.text(borderUISize + borderPadding, borderUISize + 
-            borderPadding*2, this.p1Score, scoreConfig);
+            borderPadding*2, "P1:" + this.p1Score, scoreConfig);
 
         this.scoreRight = this.add.text(game.config.width - 140, borderUISize + 
-                borderPadding*2, this.p2Score, scoreConfig);
+                borderPadding*2, "P2:" + this.p2Score, scoreConfig);
         
+        this.scoreMiddle = this.add.text(game.config.width/2 - 40, borderUISize + 
+            borderPadding*2, "HS:" + highScore, scoreConfig);
 
         // GAME OVER flag
         this.gameOver = false;  
         this.gameOver2 = false;  
 
+        //time to be added to timer
         this.extraTime = 0;
 
         // 60-second play clock
         scoreConfig.fixedWidth = 0;
+
         this.clock = this.time.delayedCall(game.settings.gameTimer, () => {
             this.addTime(this.extraTime);
-            /*this.add.text(game.config.width/2, game.config.height/2, 'GAME OVER', 
-            scoreConfig).setOrigin(0.5);
-        this.add.text(game.config.width/2, game.config.height/2 + 64, 'Press (R) to Restart or <- for Menu', 
-            scoreConfig).setOrigin(0.5);
-            this.gameOver = true;
-            */
         }, null, this);
         
-
+     //   game.time.events.loop(Phaser.Timer.SECOND, updateTime, this);
+    // this.timedEvent = this.time.addEvent({ delay: 1000, callback: this.updateTime(), callbackScope: this, loop: true });
         
 
     }
@@ -110,7 +119,7 @@ class Play extends Phaser.Scene {
         }
         
         this.starfield.tilePositionX -= 4;
-        if(!this.gameOver){
+        if(!this.gameOver && !this.pauseGame){
             this.p1Rocket.update();
             this.ship1.update();               // update spaceships (x3)
             this.ship2.update();
@@ -134,10 +143,10 @@ class Play extends Phaser.Scene {
                 
                 this.p1Rocket.consecutiveHits += 1;
                 if(this.p1Rocket.consecutiveHits > 3){
-                    this.extraTime += 3000;
+                    this.extraTime += 1000;
                 }
                 else{
-                    this.extraTime += this.p1Rocket.consecutiveHits*1000;
+                    this.extraTime += 500;
                 }
 
             }
@@ -147,10 +156,10 @@ class Play extends Phaser.Scene {
                 
                 this.p1Rocket.consecutiveHits += 1;
                 if(this.p1Rocket.consecutiveHits > 3){
-                    this.extraTime += 3000;
+                    this.extraTime += 1000;
                 }
                 else{
-                    this.extraTime += this.p1Rocket.consecutiveHits*1000;
+                    this.extraTime += 500;
                 }
 
             }
@@ -160,10 +169,10 @@ class Play extends Phaser.Scene {
                 
                 this.p1Rocket.consecutiveHits += 1;
                 if(this.p1Rocket.consecutiveHits > 3){
-                    this.extraTime += 3000;
+                    this.extraTime += 1000;
                 }
                 else{
-                    this.extraTime += this.p1Rocket.consecutiveHits*1000;
+                    this.extraTime += 500;
                 }
             }
 
@@ -182,10 +191,10 @@ class Play extends Phaser.Scene {
                 
                 this.p2Rocket.consecutiveHits += 1;
                 if(this.p2Rocket.consecutiveHits > 3){
-                    this.extraTime += 3000;
+                    this.extraTime += 1000;
                 }
                 else{
-                    this.extraTime += this.p2Rocket.consecutiveHits*1000;
+                    this.extraTime += 500;
                 }
 
             }
@@ -195,10 +204,10 @@ class Play extends Phaser.Scene {
                 
                 this.p2Rocket.consecutiveHits += 1;
                 if(this.p2Rocket.consecutiveHits > 3){
-                    this.extraTime += 3000;
+                    this.extraTime += 1000;
                 }
                 else{
-                    this.extraTime += this.p2Rocket.consecutiveHits*1000;
+                    this.extraTime += 500;
                 }
 
             }
@@ -208,21 +217,15 @@ class Play extends Phaser.Scene {
                 
                 this.p2Rocket.consecutiveHits += 1;
                 if(this.p2Rocket.consecutiveHits > 3){
-                    this.extraTime += 3000;
+                    this.extraTime += 1000;
                 }
                 else{
-                    this.extraTime += this.p2Rocket.consecutiveHits*1000;
+                    this.extraTime += 500;
                 }
             }
 
         }
 
-        /*if (!this.gameOver) {               
-            this.p1Rocket.update();         // update rocket sprite
-            this.ship1.update();           // update spaceships (x3)
-            this.ship2.update();
-            this.ship3.update();
-        } */
     }
 
     
@@ -252,47 +255,71 @@ class Play extends Phaser.Scene {
           boom.destroy();                       // remove explosion sprite
         });   
         
+        //Create particle explosion
+        let emitter = this.particles.createEmitter({
+            x: ship.x,
+            y: ship.y,
+            angle: { min: 0, max: 360 },
+            speed: 200,
+            gravityY: 100,
+            lifespan: 300,
+            quantity: 10,
+            scale: { start: 0.1, end: .22 },
+            blendMode: 'ADD'
+        });
+        this.time.delayedCall(400, ()=>{
+            emitter.stop();
+        });
+
         // score add and repaint
         if(!this.gameOver){
             this.p1Score += ship.points;
-            this.scoreLeft.text = this.p1Score; 
+            this.scoreLeft.text = "P1:" + this.p1Score; 
         }
         else{
             this.p2Score += ship.points;
-            this.scoreRight.text = this.p2Score;
+            this.scoreRight.text = "P2:" + this.p2Score;
         }
-        this.sound.play('sfx_explosion');
+        
+        this.randomAudio = this.explosionAudios[Math.floor(Math.random()*this.explosionAudios.length)];
+        this.sound.play(this.randomAudio);
       }
 
     addTime(time){
         
         if(!this.gameOver){
             if(time == 0){
-               turnOver = new Text(game.config.width/2, game.config.height/2, 'PLAYER 1 TURN OVER LOL', 
+               this.turnOver = this.add.text(game.config.width/2, game.config.height/2, 'PLAYER 1 TURN OVER ', 
                 this.scoreConfig).setOrigin(.5);
-             //   playerTwo = this.make.text(game.config.width/2, game.config.height/2 + 164, 'PLAYER 2 GET READY', 
-             //   this.scoreConfig).setOrigin(.5);
+                this.playerTwo = this.add.text(game.config.width/2, game.config.height/2 + 64, 'PLAYER 2 GET READY', 
+                this.scoreConfig).setOrigin(.5);
 
-
-            //    this.add.text(game.config.width/2, game.config.height/2, 'PLAYER 1 TURN OVER', 
-            //    this.scoreConfig).setOrigin(0.5);
-            
-               this.clock = this.time.delayedCall(3000, () => {
-                turnOver.destroy();
-                //playerTwo.alpha = 0;
-               }, null, this);  
-            
-
+               
+                this.pauseGame = true;
+                this.clock = this.time.delayedCall(3000, () => {
+                this.turnOver.destroy();
+                this.playerTwo.destroy();
+                this.pauseGame = false;
+                
                 this.gameOver = true;
                 this.p1Rocket.alpha = 0;
                 this.p2Rocket.alpha = 1;
                 this.extraTime = 0;
+                if(this.p1Score > highScore){
+                    highScore = this.p1Score;
+                    this.scoreMiddle.text = "HS:" + highScore;
+
+                }
 
                 this.clock = this.time.delayedCall(game.settings.gameTimer, () => {
                     this.addTime(this.extraTime);   
                 }, null, this); 
+               }, null, this);  
+            
+
             }    
             else{
+                this.timer += this.extraTime;
                 this.clock = this.time.delayedCall(time, () => {
                     this.addTime(this.extraTime);   
                 }, null, this); 
@@ -308,9 +335,14 @@ class Play extends Phaser.Scene {
             this.add.text(game.config.width/2, game.config.height/2 + 64, 'Press (R) to Restart or <- for Menu', 
                 this.scoreConfig).setOrigin(0.5);
                 
+                if(this.p2Score > highScore){
+                    highScore = this.p2Score;
+                    this.scoreMiddle.text = "HS:" + highScore;
+                }
                 this.gameOver2 = true;
             }    
             else{
+                this.timer += this.extraTime;
                 this.clock = this.time.delayedCall(time, () => {
                     this.addTime(this.extraTime);   
                 }, null, this); 
@@ -319,5 +351,19 @@ class Play extends Phaser.Scene {
             
         }
     }
+
+   /* updateTime(){
+        
+         //   this.clock2 = this.time.delayedCall(1000, () => {
+                this.timer -= 1000;
+                this.timeDisplay.text =  this.timer/1000 + "s";
+                if(this.timer <=0){
+                    this.timedEvent.remove();
+                }
+                
+        //    }, null, this);
+
+    }
+    */
 
 }
