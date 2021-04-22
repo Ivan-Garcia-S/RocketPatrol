@@ -1,3 +1,11 @@
+/*
+Ivan Garcia-Sanchez
+Rocket Patrol Mods
+4/21/21
+4 days to complete
+*/
+
+
 class Play extends Phaser.Scene {
     constructor () {
         super("playScene");
@@ -84,9 +92,10 @@ class Play extends Phaser.Scene {
         this.scoreLeft = this.add.text(borderUISize + borderPadding, borderUISize + 
             borderPadding*2, "P1:" + this.p1Score, scoreConfig);
 
-        this.scoreRight = this.add.text(game.config.width - 140, borderUISize + 
+        if(game.settings.twoPlayers){
+            this.scoreRight = this.add.text(game.config.width - 140, borderUISize + 
                 borderPadding*2, "P2:" + this.p2Score, scoreConfig);
-        
+            }
         this.scoreMiddle = this.add.text(game.config.width/2 - 40, borderUISize + 
             borderPadding*2, "HS:" + highScore, scoreConfig);
 
@@ -292,33 +301,42 @@ class Play extends Phaser.Scene {
                 this.ship1.reset();
                 this.ship2.reset();
                 this.ship3.reset();    
-                this.turnOver = this.add.text(game.config.width/2, game.config.height/2, 'PLAYER 1 TURN OVER ', 
-                this.scoreConfig).setOrigin(.5);
-                this.playerTwo = this.add.text(game.config.width/2, game.config.height/2 + 64, 'PLAYER 2 GET READY', 
-                this.scoreConfig).setOrigin(.5);
-
-               
-                this.pauseGame = true;
-                this.clock = this.time.delayedCall(3000, () => {
-                this.turnOver.destroy();
-                this.playerTwo.destroy();
-                this.pauseGame = false;
                 
-                this.gameOver = true;
-                this.p1Rocket.alpha = 0;
-                this.p2Rocket.alpha = 1;
-                this.extraTime = 0;
+                this.pauseGame = true;
                 if(this.p1Score > highScore){
                     highScore = this.p1Score;
                     this.scoreMiddle.text = "HS:" + highScore;
-
                 }
 
-                this.clock = this.time.delayedCall(game.settings.gameTimer, () => {
-                    this.addTime(this.extraTime);   
-                }, null, this); 
-               }, null, this);  
-            
+                if(game.settings.twoPlayers){
+                    this.turnOver = this.add.text(game.config.width/2, game.config.height/2, 'PLAYER 1 TURN OVER ', 
+                    this.scoreConfig).setOrigin(.5);
+                    this.playerTwo = this.add.text(game.config.width/2, game.config.height/2 + 64, 'PLAYER 2 GET READY', 
+                    this.scoreConfig).setOrigin(.5);
+                    this.clock = this.time.delayedCall(3000, () => {
+                        this.turnOver.destroy();
+                        this.playerTwo.destroy();
+                        this.pauseGame = false;
+                    
+                        this.gameOver = true;
+                        this.p1Rocket.alpha = 0;
+                        this.p2Rocket.alpha = 1;
+                        this.extraTime = 0;
+                        
+
+                        this.clock = this.time.delayedCall(game.settings.gameTimer, () => {
+                            this.addTime(this.extraTime);   
+                        }, null, this); 
+                    }, null, this);  
+
+                }
+                else{
+                    this.add.text(game.config.width/2, game.config.height/2, 'GAME OVER', 
+                    this.scoreConfig).setOrigin(0.5);
+                    this.add.text(game.config.width/2, game.config.height/2 + 64, 'Press (R) to Restart or <- for Menu', 
+                    this.scoreConfig).setOrigin(0.5);
+                    this.gameOver2 = true;
+                }
 
             }    
             else{

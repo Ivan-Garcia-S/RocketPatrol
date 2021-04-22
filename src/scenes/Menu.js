@@ -1,3 +1,11 @@
+/*
+Ivan Garcia-Sanchez
+Rocket Patrol Mods
+4/21/21
+4 days to complete
+*/
+
+
 class Menu extends Phaser.Scene {
     constructor() {
         super("menuScene");
@@ -15,7 +23,7 @@ class Menu extends Phaser.Scene {
       
 
     create() {
-        
+        this.twoPlayer = false;
 
         let menuConfig = {
             fontFamily: 'Courier',
@@ -39,21 +47,28 @@ class Menu extends Phaser.Scene {
         menuConfig.color = "#000";
         this.add.text(game.config.width/2, game.config.height/2 + borderUISize + 
             borderPadding, "Press <- for Novice or -> for Expert", menuConfig).setOrigin(0.5);
+        this.twos = this.add.text(game.config.width/2, game.config.height/2 + 2*borderUISize + 
+            2*borderPadding, "Press R key for 2-Player mode", menuConfig).setOrigin(0.5);
 
         // define keys
         keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
         keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
-
+        keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
         //game.highScore = 0;
     }
 
 
     update() {
+        if(Phaser.Input.Keyboard.JustDown(keyR)){
+          this.twoPlayer = true;
+          this.twos.destroy();
+        }      
         if (Phaser.Input.Keyboard.JustDown(keyLEFT)) {
           // easy mode
           game.settings = {
             spaceshipSpeed: 3,
-            gameTimer: 60000    
+            gameTimer: 60000,   
+            twoPlayers: this.twoPlayer
           }
           this.sound.play("sfx_select");
           this.scene.start("playScene");    
@@ -62,7 +77,8 @@ class Menu extends Phaser.Scene {
           // hard mode
           game.settings = {
             spaceshipSpeed: 4,
-            gameTimer: 45000    
+            gameTimer: 45000,  
+            twoPlayers: this.twoPlayer  
           }
           this.sound.play("sfx_select");
           this.scene.start("playScene");    

@@ -1,3 +1,11 @@
+/*
+Ivan Garcia-Sanchez
+Rocket Patrol Mods
+4/21/21
+4 days to complete
+*/
+
+
 class Ship extends Phaser.GameObjects.Sprite{
     constructor(scene,x,y,texture,frame, pointValue){
         super(scene,x,y,texture,frame);
