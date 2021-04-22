@@ -289,7 +289,10 @@ class Play extends Phaser.Scene {
         
         if(!this.gameOver){
             if(time == 0){
-               this.turnOver = this.add.text(game.config.width/2, game.config.height/2, 'PLAYER 1 TURN OVER ', 
+                this.ship1.reset();
+                this.ship2.reset();
+                this.ship3.reset();    
+                this.turnOver = this.add.text(game.config.width/2, game.config.height/2, 'PLAYER 1 TURN OVER ', 
                 this.scoreConfig).setOrigin(.5);
                 this.playerTwo = this.add.text(game.config.width/2, game.config.height/2 + 64, 'PLAYER 2 GET READY', 
                 this.scoreConfig).setOrigin(.5);
@@ -351,19 +354,5 @@ class Play extends Phaser.Scene {
             
         }
     }
-
-   /* updateTime(){
-        
-         //   this.clock2 = this.time.delayedCall(1000, () => {
-                this.timer -= 1000;
-                this.timeDisplay.text =  this.timer/1000 + "s";
-                if(this.timer <=0){
-                    this.timedEvent.remove();
-                }
-                
-        //    }, null, this);
-
-    }
-    */
 
 }
